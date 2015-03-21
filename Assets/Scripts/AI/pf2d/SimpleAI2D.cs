@@ -7,13 +7,13 @@ public class SimpleAI2D : Pathfinding2D
     //public Transform Target;
 	public GameObject Target;
 	Transform groundCheckTransf;
-    public float Speed = 20F;
 
     public bool search = true;
     public float tempDistance = 0F;
 
 	//LAYER DA INSEGUIRE
 	public int HideLayer;
+	public LayerMask HidingLayerMask;
 
 
 	void Start () 
@@ -59,6 +59,21 @@ public class SimpleAI2D : Pathfinding2D
 
                 //Now check the distance to the player, if it is within the distance it will search for a new path
                 //{
+
+				//TODO: da provare
+				//se il layer del target appartiene alla maschera, cioè se facendo un AND bitwise (&) fra il layer
+				//che avrà tutti i bit a zero tranne quello identificativo del layer, e la maschera dei layer, se il bit
+				//del layer sarà uguale, cioè allo stesso posto, il risultato dell'& sarà > 0, se invece i posti saranno diversi
+				//tutti i bit andranno a zero, quindi avremo un valore di zero
+				if( (HidingLayerMask.value & 1<<Target.layer) > 0 ) {
+					Target = null;
+					return;
+
+				}
+
+				// if (layermask.value & 1<<layer) 
+
+				//TODO: da ELIMINARE
 				if(Target.layer == HideLayer) {
 					Target = null;
 					return;

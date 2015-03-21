@@ -21,6 +21,9 @@ public class Pathfinder2D : MonoBehaviour
     public float zStart = -10F;
     public float zEnd = 10F;
 
+	public GameObject MapStartPositionGO;
+	public GameObject MapEndPositionGO;
+
     public Vector2 MapStartPosition;
     public Vector2 MapEndPosition;
 
@@ -49,6 +52,17 @@ public class Pathfinder2D : MonoBehaviour
         instance = this;
     }
 
+	void getStartEndMapPosition(){
+
+		if (MapStartPositionGO != null) {
+			MapStartPosition = new Vector2(MapStartPositionGO.transform.position.x,MapStartPositionGO.transform.position.y);
+		}
+
+		if (MapEndPositionGO != null) {
+			MapEndPosition = new Vector2(MapEndPositionGO.transform.position.x,MapEndPositionGO.transform.position.y);
+		}
+
+	}
 
     void Start()
     {
@@ -56,6 +70,8 @@ public class Pathfinder2D : MonoBehaviour
         {
             Tilesize = 1;
         }
+
+		getStartEndMapPosition ();
 
         Pathfinder2D.Instance.Create2DMap();
     }

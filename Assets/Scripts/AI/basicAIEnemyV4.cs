@@ -9,12 +9,12 @@ using System.Collections;
  *		_NOMESTATO : questo invoca la la funzione involucro, tipicamente chiamata nomestaton (n è un numero)
  *	
  *			NOMESTATON : qui c'è un pattern fisso, si dichiara un enemystatemachine, si fa un if su una funzione che testa se continuare o meno
- *			in questo stato (continueNomeStato)
+ *			in questo stato (isStoppedNomeStato)
  *
- *				CONTINUENOMESTATO : fa dei test ad hoc per lo stato e ha come tipo di ritorno un enemystatemachine
+ *				ISSTOPPEDNOMESTATO : fa dei test ad hoc per lo stato e ha come tipo di ritorno un enemystatemachine
  *
  *			ritornando alla funzione, in base all'esito della funzione appena citata si entrerà nel primo ramo dell'if che farà continuare
- *			l'azione di questo stato, se invece si dovesse entrare nell'else si invocherà la funzione makestatetransiotion
+ *			l'azione di questo stato (continueNomeStato), se invece si dovesse entrare nell'else si invocherà la funzione makestatetransiotion
  *
  *				MAKESTATETRANSITION : questa ha 2 serie di switch che indirizzerà verso la funzione che porterà dallo stato attuale al prossimo
  *
@@ -22,7 +22,7 @@ using System.Collections;
  *					una per l'uscita da uno stato e una per l'entrata nel nuovo stato, per il reset o set delle variabili
  *
  *	
- *	lista cose da fare per aggiungere uno stato :
+ *	COME AGGIUNGERE UNO STATO ALLA FSM :
  *
  *	1) aggiungerlo alla enemyMachineState enum
  *	2) creare e aggiungere la relativa funzione _NomeStato() allo switch dentro l'update
@@ -31,10 +31,15 @@ using System.Collections;
  *	5) aggiungere i casi agli switch della funzione makeStateTransition e quindi creare le nuove funzioni necessarie per entrare ed uscire da questo stato
  *
  * 
+ *  TIPOLOGIE NEMICO :
  * 
+ * 	a) NoJumpSoftChase -> non si allontana troppo dai punti di patrol e non riesce neanche a saltare. E' il tipo di nemico meno pericoloso che esista
+ *	b) NoJumpHeavyChase -> si allontana fin dove può per inseguire un target, non riesce comunque a saltare. Il mondo migliore per scappare è salire delle scale.
+ *	c) HeavyChase -> insegue il target fin dove può, saltando se dovesse servire. (? per ora non completamente implementato)
+ *	d) ClimberHeavyChase -> insegue persino lungo le scale. E' il nemico più frustrante di tutti da seminare. (???? da implementare)
  * 
  */
-//ciao pivello
+
 public class basicAIEnemyV4 : MonoBehaviour {
 	
 	//Gestione macchina a stati-----------------------------------------------------------------------
@@ -59,7 +64,8 @@ public class basicAIEnemyV4 : MonoBehaviour {
 	//public LayerMask wallLayers;
 	//public LayerMask groundBasic;
 	public LayerMask targetLayers;
-	public LayerMask fromWhoFleeLayers;
+	public LayerMask fleeLayer;
+	public LayerMask hidingLayer;
 	
 	//DEBUG VARIABLES
 	public bool DEBUG_PHASE_BASIC = true;
@@ -91,7 +97,6 @@ public class basicAIEnemyV4 : MonoBehaviour {
 	//public LayerMask groundBasic; dichiarato su
 	
 	//Gestione patrol----------------------------------------------------------------------------------
-	float tCountdownNextTargetW = 0.0f;
 	public GameObject []patrolPoints;
 	public GameObject[]patrolSuspiciousPoints;
 	float suspiciousStartTime = 0.0f;
@@ -104,7 +109,6 @@ public class basicAIEnemyV4 : MonoBehaviour {
 	//variabili da resettare ad inizio stato
 	bool patrollingTowardAPoint = false;
 	public Transform patrolledTarget;//utile dichiararlo momentaneamente public per vedere che valore ha
-	bool suspPointsSetted = false;
 	bool reacheadOneSuspPoint = false;
 	
 	
@@ -127,7 +131,7 @@ public class basicAIEnemyV4 : MonoBehaviour {
 	float marginAtChThreshold = 0.06f;//ex. 0.3f
 	
 	//Gestione fleeing---------------------------------------------------------------------------------
-	//public LayerMask fromWhoFleeLayers; dichiarato su
+	//public LayerMask fleeLayer; dichiarato su
 	Transform fleeingBy;
 	Transform fleeingTargetPoint;
 	bool fleeingTowardAPoint = false;
@@ -238,7 +242,7 @@ public class basicAIEnemyV4 : MonoBehaviour {
 			GameObject p = GameObject.Find ("AutoGenSuspPoints");
 			
 			if (p == null) {
-				Debug.Log ("creo susp points container");
+				//Debug.Log ("creo susp points container");
 				p = (GameObject) GameObject.Instantiate(pointPrefab, new Vector3(0.0f, 0.0f, 0.0f), Quaternion.identity);
 				p.name = "AutoGenSuspPoints";
 			}
@@ -262,7 +266,7 @@ public class basicAIEnemyV4 : MonoBehaviour {
 	//TODO: PRIO non funziona bene
 	private void checkPatrolPoints(){
 		
-		Debug.Log("gen patrol");
+		//Debug.Log("gen patrol");
 		
 		if(false/*patrolPoints.Length>1*/) {
 			//servono almeno 2 punti
@@ -273,7 +277,7 @@ public class basicAIEnemyV4 : MonoBehaviour {
 			GameObject p = GameObject.Find ("AutoGenPatrolPoints");
 			
 			if (p == null) {
-				Debug.Log ("creo patrol points containter");
+				//Debug.Log ("creo patrol points containter");
 				p = (GameObject) GameObject.Instantiate(pointPrefab, new Vector3(0.0f, 0.0f, 0.0f), Quaternion.identity);
 				p.name = "AutoGenPatrolPoints";
 			}
@@ -864,13 +868,19 @@ public class basicAIEnemyV4 : MonoBehaviour {
 			suspiciousUp();
 			return true;
 		}
-		
-		if (myAstar.Target.layer != 8 && myAstar.Target.layer != 13 ) {
+
+		if ((targetLayers.value & 1 << myAstar.Target.layer) == 0) {
+
+			suspiciousUp();
+			return true;
+		}
+		/*
+		if (myAstar.Target.layer != 12 && myAstar.Target.layer != 14 ) {
 			//Debug.Log ("SCOMPARSO");
 			suspiciousUp();
 			return true;
 		}
-		
+		*/
 		return false;
 	}
 	
@@ -961,12 +971,18 @@ public class basicAIEnemyV4 : MonoBehaviour {
 			return true;
 		}
 		
-		//se target layer è diverso da 15 (toflee) o da quello del personaggio (8)
+		//se target layer è diverso da 15 (toflee) o da quello del personaggio (12)
 		//allora posso tornare tranquillo
-		if(fleeingBy.gameObject.layer != 15 && fleeingBy.gameObject.layer != 8) {
+
+		if ((fleeLayer.value & 1 << fleeingBy.gameObject.layer) == 0) {			
 			return true;
 		}
-		
+
+		/*
+		if(fleeingBy.gameObject.layer != 15) {
+			return true;
+		}
+		*/
 		float dist = Vector2.Distance (groundCheckTransf.position, new Vector2 (fleeingBy.position.x, fleeingBy.position.y));
 		
 		if (Mathf.Abs (dist) > frontalDistanceOfView * 2f) {
@@ -982,7 +998,7 @@ public class basicAIEnemyV4 : MonoBehaviour {
 		
 		//basic method to detect enemies
 		
-		RaycastHit2D hit = Physics2D.Raycast(transform.position, i_facingRight()? Vector2.right : -Vector2.right, frontalDistanceOfView, fromWhoFleeLayers);
+		RaycastHit2D hit = Physics2D.Raycast(transform.position, i_facingRight()? Vector2.right : -Vector2.right, frontalDistanceOfView, fleeLayer);
 		if (hit.collider != null) {
 			
 			makeStateTransition(eMS,enemyMachineState.Flee, hit.transform.gameObject);
@@ -993,7 +1009,7 @@ public class basicAIEnemyV4 : MonoBehaviour {
 		if (backVision) {
 			//OPZIONALE PER NEMICI FORTI??
 			
-			hit = Physics2D.Raycast (transform.position, i_facingRight() ? -Vector2.right : Vector2.right, backDistanceOfView, fromWhoFleeLayers);
+			hit = Physics2D.Raycast (transform.position, i_facingRight() ? -Vector2.right : Vector2.right, backDistanceOfView, fleeLayer);
 			if (hit.collider != null) {
 				makeStateTransition(eMS,enemyMachineState.Flee, hit.transform.gameObject);
 				
@@ -1132,7 +1148,6 @@ public class basicAIEnemyV4 : MonoBehaviour {
 		setTargetAStar (null);
 		
 		if (suspicious) {
-			suspPointsSetted = false;
 			reacheadOneSuspPoint = false;
 		}
 	}
@@ -1184,7 +1199,7 @@ public class basicAIEnemyV4 : MonoBehaviour {
 		Debug.DrawLine (new Vector2(transform.position.x, transform.position.y + 1.0f), i_facingRight () ? new Vector2 (transform.position.x + 8.0f, transform.position.y + 1.0f) : new Vector2 (transform.position.x - 8.0f, transform.position.y + 1.0f), Color.red);
 		hit = Physics2D.Raycast(new Vector2(transform.position.x, transform.position.y + 1.0f) , i_facingRight()? Vector2.right : -Vector2.right, frontalDistanceOfView, targetLayers);
 		if (hit.collider != null) {
-			Debug.Log ("check2");
+			//Debug.Log ("check2");
 			go = hit.transform.gameObject;
 			return enemyMachineState.Chase;
 			
@@ -1315,7 +1330,9 @@ public class basicAIEnemyV4 : MonoBehaviour {
 			//CASO NORMALE
 			
 			if (patrolledTarget == null) {
-				
+
+				//TODO: PRIOR rinnovare all'occorrenza punti di patrol
+
 				patrolledTarget = patrolPoints [0].transform;
 				setNextPatrolTargetPoint(patrolledTarget.gameObject);
 				
@@ -1358,7 +1375,7 @@ public class basicAIEnemyV4 : MonoBehaviour {
 			if(Vector2.Distance(groundCheckTransf.position, patrolledTarget.position) < 1.0f) {
 				//if we are really near, we'll set next point to patrol
 				searchNextPatrollingPoint();
-				Debug.Log ("cambio dir" + Time.time);
+				//Debug.Log ("cambio dir" + Time.time);
 			}
 			else {
 				//go toward the patrol point
@@ -1656,7 +1673,13 @@ public class basicAIEnemyV4 : MonoBehaviour {
 	private void initializeStunned() {
 		
 		tLastStunnedAttackReceived = Time.time;
-		
+
+		i_stunned ();
+
+	}
+
+	private void i_stunned () {
+
 	}
 	
 	private bool isStunnedCountDownFinished() {
@@ -1740,7 +1763,7 @@ public class basicAIEnemyV4 : MonoBehaviour {
 	private void i_flip() {
 		if(Time.time - tLastFlip > tBetweenFlips ) {
 			//c2d.Flip();
-			Debug.Log("flippo : " + Time.time);
+			//Debug.Log("flippo : " + Time.time);
 			pm.c_flip();
 			tLastFlip = Time.time;
 			
@@ -2067,7 +2090,7 @@ public class basicAIEnemyV4 : MonoBehaviour {
 	}
 	
 	public void setStunned(bool st) {
-		Debug.Log ("ahi");
+		//Debug.Log ("ahi");
 		this.stunnedReceived = st;
 		
 	}
