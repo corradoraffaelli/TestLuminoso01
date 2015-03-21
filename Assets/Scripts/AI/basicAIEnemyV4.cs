@@ -115,7 +115,7 @@ public class basicAIEnemyV4 : MonoBehaviour {
 	//Gestione raycast target------------------------------------
 	//public LayerMask targetLayers; dichiarata su
 	bool backVision = true;
-	float frontalDistanceOfView = 8.0f;
+	float frontalDistanceOfView = 5.0f;
 	float backDistanceOfView = 2.0f;
 	
 	//Gestione chase-----------------------------------------------------------------------------------
@@ -141,7 +141,7 @@ public class basicAIEnemyV4 : MonoBehaviour {
 	
 	bool stunnedReceived = false;
 	float tLastStunnedAttackReceived = -10.0f;
-	float tToReturnFromStunned = 5.0f;
+	float tToReturnFromStunned = 3.0f;
 	//bool autoDestroy = false;
 	
 	//Gestione jump------------------------------------------------------------------------------------
@@ -284,7 +284,7 @@ public class basicAIEnemyV4 : MonoBehaviour {
 	}
 	
 	//TODO: PRIO non funziona bene
-	private void checkPatrolPoints(){
+	private void checkPatrolPoints(bool reallocate = false){
 		
 		//Debug.Log("gen patrol");
 		
@@ -293,26 +293,34 @@ public class basicAIEnemyV4 : MonoBehaviour {
 			return;
 		}
 		else {
-			
-			GameObject p = GameObject.Find ("AutoGenPatrolPoints");
-			
-			if (p == null) {
-				//Debug.Log ("creo patrol points containter");
-				p = (GameObject) GameObject.Instantiate(pointPrefab, new Vector3(0.0f, 0.0f, 0.0f), Quaternion.identity);
-				p.name = "AutoGenPatrolPoints";
+
+			if(reallocate) {
+				patrolPoints[0].transform.position = new Vector3(groundCheckTransf.position.x - 3*transform.localScale.x, groundCheckTransf.position.y, groundCheckTransf.position.z);
+				patrolPoints[1].transform.position =  new Vector3(groundCheckTransf.position.x + 3*transform.localScale.x, groundCheckTransf.position.y, groundCheckTransf.position.z);
+
 			}
-			
-			patrolPoints = new GameObject[2];
-			
-			GameObject ob1 = (GameObject) GameObject.Instantiate(pointPrefab, new Vector3(groundCheckTransf.position.x - 3*transform.localScale.x, groundCheckTransf.position.y, groundCheckTransf.position.z), Quaternion.identity);
-			ob1.name = "Point(clone) " + this.name + " left";
-			ob1.transform.parent = p.transform;
-			patrolPoints[0] = ob1;
-			
-			GameObject ob2 = (GameObject) GameObject.Instantiate(pointPrefab, new Vector3(groundCheckTransf.position.x + 3*transform.localScale.x, groundCheckTransf.position.y, groundCheckTransf.position.z), Quaternion.identity);
-			ob2.name = "Point(clone) " + this.name + " right";
-			ob2.transform.parent = p.transform;
-			patrolPoints[1] = ob2;
+			else {
+
+				GameObject p = GameObject.Find ("AutoGenPatrolPoints");
+				
+				if (p == null) {
+					//Debug.Log ("creo patrol points containter");
+					p = (GameObject) GameObject.Instantiate(pointPrefab, new Vector3(0.0f, 0.0f, 0.0f), Quaternion.identity);
+					p.name = "AutoGenPatrolPoints";
+				}
+				
+				patrolPoints = new GameObject[2];
+				
+				GameObject ob1 = (GameObject) GameObject.Instantiate(pointPrefab, new Vector3(groundCheckTransf.position.x - 3*transform.localScale.x, groundCheckTransf.position.y, groundCheckTransf.position.z), Quaternion.identity);
+				ob1.name = "Point(clone) " + this.name + " left";
+				ob1.transform.parent = p.transform;
+				patrolPoints[0] = ob1;
+				
+				GameObject ob2 = (GameObject) GameObject.Instantiate(pointPrefab, new Vector3(groundCheckTransf.position.x + 3*transform.localScale.x, groundCheckTransf.position.y, groundCheckTransf.position.z), Quaternion.identity);
+				ob2.name = "Point(clone) " + this.name + " right";
+				ob2.transform.parent = p.transform;
+				patrolPoints[1] = ob2;
+			}
 			
 		}
 		
@@ -622,7 +630,7 @@ public class basicAIEnemyV4 : MonoBehaviour {
 		initializePatrol ();
 		
 		setStatusSprite (eMS);
-		Debug.Log ("ehiehi");
+		//Debug.Log ("ehiehi");
 	}
 	
 	private void makeChAtTransition() {
@@ -1004,7 +1012,7 @@ public class basicAIEnemyV4 : MonoBehaviour {
 		*/
 		float dist = Vector2.Distance (groundCheckTransf.position, new Vector2 (fleeingBy.position.x, fleeingBy.position.y));
 		
-		if (Mathf.Abs (dist) > frontalDistanceOfView * 2f) {
+		if (Mathf.Abs (dist) > frontalDistanceOfView * 1.5f) {
 			return true;
 		}
 		
@@ -1215,7 +1223,7 @@ public class basicAIEnemyV4 : MonoBehaviour {
 		
 		//controlli in comune a tutti gli enemyType
 		//Debug.Log ("check1");
-		Debug.DrawLine (new Vector2(transform.position.x, transform.position.y + 1.0f), i_facingRight () ? new Vector2 (transform.position.x + 8.0f, transform.position.y + 1.0f) : new Vector2 (transform.position.x - 8.0f, transform.position.y + 1.0f), Color.red);
+		Debug.DrawLine (new Vector2(transform.position.x, transform.position.y + 1.0f), i_facingRight () ? new Vector2 (transform.position.x + frontalDistanceOfView, transform.position.y + 1.0f) : new Vector2 (transform.position.x - frontalDistanceOfView, transform.position.y + 1.0f), Color.red);
 		hit = Physics2D.Raycast(new Vector2(transform.position.x, transform.position.y + 1.0f) , i_facingRight()? Vector2.right : -Vector2.right, frontalDistanceOfView, targetLayers);
 		if (hit.collider != null) {
 			//Debug.Log ("check2");
@@ -1351,6 +1359,12 @@ public class basicAIEnemyV4 : MonoBehaviour {
 			if (patrolledTarget == null) {
 
 				//TODO: PRIOR rinnovare all'occorrenza punti di patrol
+
+				if( Mathf.Abs ( patrolPoints[0].transform.position.x - groundCheckTransf.position.x) > 1.0f) {
+
+					checkPatrolPoints(true);
+
+				}
 
 				patrolledTarget = patrolPoints [0].transform;
 				setNextPatrolTargetPoint(patrolledTarget.gameObject);
