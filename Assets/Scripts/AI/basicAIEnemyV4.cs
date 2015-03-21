@@ -153,7 +153,10 @@ public class basicAIEnemyV4 : MonoBehaviour {
 	float tBetweenJumps = 0.3f;
 	float spaceToOvercomeH = 2.5f;
 	float spaceToOvercomeL = 3.5f;
-	
+
+	//Gestione stunned---------------------------------------------------------------------------------
+	GameObject myToStun;
+
 	//Gestione flip------------------------------------------------------------------------------------
 	float tLastFlip = -0.5f;
 	float tBetweenFlips = 0.2f;
@@ -187,10 +190,27 @@ public class basicAIEnemyV4 : MonoBehaviour {
 		getScriptAStar ();
 		
 		setupByEnemyType ();
+
+		getMyToStun ();
 		//myPers = new Personality (this.behavior, this.suspiciousness, this.senses);
 		//myPriors = new ArrayList ();
 	}
-	
+
+	private void getMyToStun() {
+
+		foreach (Transform child in transform) {
+
+			if(child.tag == "Stunning") {
+
+				myToStun = child.gameObject;
+				break;
+
+			}
+
+		}
+
+	}
+
 	private void setupByEnemyType() {
 		
 		switch (eType) {
@@ -663,10 +683,9 @@ public class basicAIEnemyV4 : MonoBehaviour {
 	}
 	
 	private void makeStPaTransition() {
-		
-		//TODO: PRIOR resta così? sarebbe responsabilità del photogun
-		GetComponent<Rigidbody2D>().isKinematic = false;
-		
+
+		finalizeStunned ();
+
 		eMS = enemyMachineState.Patrol;
 		
 		initializePatrol ();
@@ -1674,14 +1693,24 @@ public class basicAIEnemyV4 : MonoBehaviour {
 		
 		tLastStunnedAttackReceived = Time.time;
 
-		i_stunned ();
+		i_stunned (true);
+
+		if (myToStun != null)
+			myToStun.GetComponent<BoxCollider2D> ().enabled = false;
 
 	}
 
-	private void i_stunned () {
+	private void finalizeStunned() {
+		
+		i_stunned (false);
+		//TODO: PRIOR resta così? sarebbe responsabilità del photogun
+		GetComponent<Rigidbody2D>().isKinematic = false;
+
+		if (myToStun != null)
+			myToStun.GetComponent<BoxCollider2D> ().enabled = true;
 
 	}
-	
+
 	private bool isStunnedCountDownFinished() {
 		
 		if (Time.time - tLastStunnedAttackReceived > tToReturnFromStunned) {
@@ -1759,7 +1788,7 @@ public class basicAIEnemyV4 : MonoBehaviour {
 		//c2d.giveNearAttack (0);
 		//pm.c_attack();
 	}
-	
+
 	private void i_flip() {
 		if(Time.time - tLastFlip > tBetweenFlips ) {
 			//c2d.Flip();
@@ -1774,7 +1803,13 @@ public class basicAIEnemyV4 : MonoBehaviour {
 		}
 		
 	}
-	
+
+	private void i_stunned(bool isStun) {
+
+		pm.c_stunned (isStun);
+
+	}
+
 	private bool i_facingRight(){
 		
 		//return c2d.FacingRight;
