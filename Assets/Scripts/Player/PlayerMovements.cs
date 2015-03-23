@@ -39,7 +39,11 @@ public class PlayerMovements : MonoBehaviour {
 	public bool FacingRight {
 		get{ return facingRight;}
 	}
-	
+
+	bool stunnedState = false;
+	float tStartStunned = -5.0f;
+	float tToReturnFromStunned = 1.5f;
+
 	void Start () {
 		RigBody = transform.GetComponent<Rigidbody2D>();
 		anim = transform.GetComponent<Animator> ();
@@ -52,7 +56,7 @@ public class PlayerMovements : MonoBehaviour {
 		onGround = groundCheck ();
 		anim.SetBool ("onGround", onGround);
 	
-		if (!freezedByTool && !AIControl) {
+		if (!freezedByTool && !AIControl && !stunnedState) {
 			//gestione del girarsi o meno
 			if ((facingRight == true && Input.GetAxis ("Horizontal") < 0) || (facingRight == false && Input.GetAxis ("Horizontal") > 0))
 				Flip ();
@@ -78,11 +82,64 @@ public class PlayerMovements : MonoBehaviour {
 			//gestione collisioni con oggetti "softGround" (quelli in corrispondenza o meno di scale)
 			softGroundCollManagement ();
 		} else {
+
+			//personaggio stunned
+			if(stunnedState) {
+				
+				handleStunned();
+			}
+
 			//personaggio freezato
-			RigBody.velocity = new Vector2(0.0f,0.0f);
+			if(freezedByTool) {
+				RigBody.velocity = new Vector2(0.0f,0.0f);
+			}
+
+			//personaggio AI
+
+			//per ora solo check per vedere se AI è fermo
+			if(AIControl) {
+
+				if(RigBody.velocity.x == 0.0f)
+					anim.SetBool ("Running", false);
+
+			}
+
+
+			
 		}
 	}
-	
+
+	private void handleStunned() {
+
+		if (Time.time > tStartStunned + tToReturnFromStunned) {
+			stunnedState = false;
+			anim.SetBool ("Stunned", false);
+		}
+
+	}
+
+	public void c_stunned(bool isStun) {
+
+		if (isStun) {
+			if(!stunnedState) {
+				anim.SetBool ("Running", false);
+				//altri controlli? devo mettere a false altre variabili?
+				anim.SetBool ("Stunned", true);
+				anim.SetTrigger("StartStunned");
+				if(!AIControl) {
+					tStartStunned = Time.time;
+					stunnedState = true;
+				}
+			}
+
+		}
+		else {
+			anim.SetBool ("Stunned", false);
+			//qualcosa per riporlarlo allo stato idle
+		}
+
+	}
+
 	void FixedUpdate()
 	{
 		if (!freezedByTool && !AIControl) {
