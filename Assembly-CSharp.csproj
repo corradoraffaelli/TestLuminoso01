@@ -5,7 +5,7 @@
 	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
 	<ProductVersion>10.0.20506</ProductVersion>
 	<SchemaVersion>2.0</SchemaVersion>
-	<ProjectGuid>{1074BC4D-F2EE-E5CA-28BE-93FCD2E452CE}</ProjectGuid>
+	<ProjectGuid>{B8F7E596-585E-C86C-39D8-D8C340972939}</ProjectGuid>
 	<OutputType>Library</OutputType>
 	<AppDesignerFolder>Properties</AppDesignerFolder>
 	<RootNamespace></RootNamespace>
@@ -46,23 +46,23 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\AI\basicAIEnemyV4.cs" />
+     <Compile Include="Assets\Scripts\AI\pf2d\Node.cs" />
+     <Compile Include="Assets\Scripts\AI\pf2d\NodeSearch.cs" />
+     <Compile Include="Assets\Scripts\AI\pf2d\Pathfinder2D.cs" />
+     <Compile Include="Assets\Scripts\AI\pf2d\Pathfinding2D.cs" />
+     <Compile Include="Assets\Scripts\AI\pf2d\QueuePath.cs" />
+     <Compile Include="Assets\Scripts\AI\pf2d\SimpleAI2D.cs" />
      <Compile Include="Assets\Scripts\General\CameraMovements.cs" />
-     <Compile Include="Assets\Scripts\Player\CollisionController.cs" />
      <Compile Include="Assets\Scripts\Player\PlayerMovements.cs" />
      <Compile Include="Assets\Scripts\ToolsManagement\Fantascope.cs" />
      <Compile Include="Assets\Scripts\ToolsManagement\Glass.cs" />
      <Compile Include="Assets\Scripts\ToolsManagement\MagicLantern.cs" />
+     <Compile Include="Assets\Scripts\ToolsManagement\MagicLantern\ProjectionCollision.cs" />
      <Compile Include="Assets\Scripts\ToolsManagement\MoveCircle.cs" />
      <Compile Include="Assets\Scripts\ToolsManagement\Tool.cs" />
      <Compile Include="Assets\Scripts\ToolsManagement\toolSwitcher.cs" />
      <Compile Include="Assets\Scripts\UI\InventoryController.cs" />
-     <Compile Include="Assets\Scripts\basicAIEnemyV4.cs" />
-     <Compile Include="Assets\Scripts\pf2d\Node.cs" />
-     <Compile Include="Assets\Scripts\pf2d\NodeSearch.cs" />
-     <Compile Include="Assets\Scripts\pf2d\Pathfinder2D.cs" />
-     <Compile Include="Assets\Scripts\pf2d\Pathfinding2D.cs" />
-     <Compile Include="Assets\Scripts\pf2d\QueuePath.cs" />
-     <Compile Include="Assets\Scripts\pf2d\SimpleAI2D.cs" />
      <None Include="Assets\Material\subt-shader.shader" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>

@@ -58,6 +58,7 @@
      <Compile Include="Assets\Scripts\ToolsManagement\Fantascope.cs" />
      <Compile Include="Assets\Scripts\ToolsManagement\Glass.cs" />
      <Compile Include="Assets\Scripts\ToolsManagement\MagicLantern.cs" />
+     <Compile Include="Assets\Scripts\ToolsManagement\MagicLantern\ProjectionCollision.cs" />
      <Compile Include="Assets\Scripts\ToolsManagement\MoveCircle.cs" />
      <Compile Include="Assets\Scripts\ToolsManagement\Tool.cs" />
      <Compile Include="Assets\Scripts\ToolsManagement\toolSwitcher.cs" />

@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: 3c09fae1fc827b34f9bbe6516a68eb0b
-timeCreated: 1426859024
+timeCreated: 1426870904
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
@@ -10,6 +10,7 @@ TextureImporter:
     21300006: sprite_complete_02_3
     21300008: sprite_complete_02_4
     21300010: sprite_complete_02_5
+    21300012: sprite_complete_02_6
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -112,6 +113,16 @@ TextureImporter:
         y: 17
         width: 177
         height: 127
+      alignment: 0
+      pivot: {x: .5, y: .5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: sprite_complete_02_6
+      rect:
+        serializedVersion: 2
+        x: 544
+        y: 6
+        width: 201
+        height: 151
       alignment: 0
       pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
