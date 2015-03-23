@@ -53,6 +53,7 @@
      <Compile Include="Assets\Scripts\AI\pf2d\Pathfinding2D.cs" />
      <Compile Include="Assets\Scripts\AI\pf2d\QueuePath.cs" />
      <Compile Include="Assets\Scripts\AI\pf2d\SimpleAI2D.cs" />
+     <Compile Include="Assets\Scripts\AI\stunnedCheck.cs" />
      <Compile Include="Assets\Scripts\General\CameraMovements.cs" />
      <Compile Include="Assets\Scripts\Player\PlayerMovements.cs" />
      <Compile Include="Assets\Scripts\ToolsManagement\Fantascope.cs" />
