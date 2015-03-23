@@ -23,7 +23,7 @@ public class ProjectionCollision : MonoBehaviour {
 		//si adatta automaticamente alla nuova sprite o a cambiamenti di sprite
 		objBounds = projectionObject.transform.GetComponent<SpriteRenderer> ().bounds;
 
-		GameObject[] wallObjects = GameObject.FindGameObjectsWithTag("ProjectingWall");
+		GameObject[] wallObjects = GameObject.FindGameObjectsWithTag("ProjectionWall");
 
 		colliding = false;
 
